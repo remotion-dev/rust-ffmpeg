@@ -631,9 +631,17 @@ impl Id {
 impl From<AVCodecID> for Id {
     fn from(value: AVCodecID) -> Self {
         match value {
+            AV_CODEC_ID_MEDIA100 => Id::None,
+            AV_CODEC_ID_APAC => Id::None,
+            AV_CODEC_ID_FTR => Id::None,
+            AV_CODEC_ID_VQC => Id::None,
+            AV_CODEC_ID_BONK => Id::None,
+            AV_CODEC_ID_MISC4 => Id::None,
             AV_CODEC_ID_NONE => Id::None,
 
             /* video codecs */
+            AV_CODEC_ID_RADIANCE_HDR => Id::None,
+            AV_CODEC_ID_WBMP => Id::None,
             AV_CODEC_ID_MPEG1VIDEO => Id::MPEG1VIDEO,
             AV_CODEC_ID_MPEG2VIDEO => Id::MPEG2VIDEO,
             #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
