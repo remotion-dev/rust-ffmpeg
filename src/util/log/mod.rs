@@ -45,7 +45,7 @@ pub fn set_callback(
 pub type VaListLoggerArg = __builtin_va_list;
 
 #[cfg(all(target_arch = "x86_64", target_os = "macos"))]
-pub type VaListLoggerArg = __darwin_va_list;
+pub type VaListLoggerArg = *mut __va_list_tag;
 
 #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
 pub type VaListLoggerArg = *mut __va_list_tag;
