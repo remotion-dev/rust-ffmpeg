@@ -24,6 +24,7 @@ default = [
     "software-scaling",
     "ffmpeg_6_0",
     "ffmpeg_6_1",
+    "ffmpeg_7_1",
 ]
 
 # ffmpeg<xy> are obsolete features kept for backward compatibility purposes and
