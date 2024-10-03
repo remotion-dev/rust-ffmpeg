@@ -720,6 +720,7 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_GBRAPF32BE => Pixel::GBRAPF32BE,
             AV_PIX_FMT_GBRAPF32LE => Pixel::GBRAPF32LE,
             AV_PIX_FMT_DRM_PRIME => Pixel::DRM_PRIME,
+            AV_PIX_FMT_D3D12 => Pixel::D3D12,
 
             #[cfg(feature = "ffmpeg_4_0")]
             AV_PIX_FMT_OPENCL => Pixel::OPENCL,
@@ -983,6 +984,7 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::YUVA422P16LE => AV_PIX_FMT_YUVA422P16LE,
             Pixel::YUVA444P16BE => AV_PIX_FMT_YUVA444P16BE,
             Pixel::YUVA444P16LE => AV_PIX_FMT_YUVA444P16LE,
+            Pixel::D3D12 => AV_PIX_FMT_D3D12,
 
             Pixel::VDPAU => AV_PIX_FMT_VDPAU,
 

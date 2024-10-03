@@ -37,6 +37,7 @@ ffmpeg41 = []
 ffmpeg4 = []
 ffmpeg_6_0 = []
 ffmpeg_6_1 = []
+ffmpeg_7_1 = []
 
 static = ["ffmpeg-sys-next/static"]
 non-exhaustive-enums = ["ffmpeg-sys-next/non-exhaustive-enums"]
