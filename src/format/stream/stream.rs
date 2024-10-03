@@ -77,6 +77,31 @@ impl<'a> Stream<'a> {
         unsafe { Rational::from((*self.as_ptr()).avg_frame_rate) }
     }
 
+    pub unsafe fn get_display_aspect_ratio(&self) -> Rational {
+        let sample_aspect_ratio = (*self.as_ptr()).sample_aspect_ratio;
+        let codec_width = (*(*self.as_ptr()).codecpar).width;
+        let codec_height = (*(*self.as_ptr()).codecpar).height;
+
+        // Careful to not mess with the casting, den is a i32, if multiplied without
+        // first casting, it will overflow
+
+        let num_no_overflow: i64 = codec_width as i64 * sample_aspect_ratio.num as i64;
+        let den_no_overflow: i64 = codec_height as i64 * sample_aspect_ratio.den as i64;
+
+        let mut num: i32 = 0;
+        let mut den: i32 = 0;
+
+        av_reduce(
+            &mut num,
+            &mut den,
+            num_no_overflow,
+            den_no_overflow,
+            1024 * 1024,
+        );
+
+        return Rational::new(num, den);
+    }
+
     pub fn metadata(&self) -> DictionaryRef {
         unsafe { DictionaryRef::wrap((*self.as_ptr()).metadata) }
     }

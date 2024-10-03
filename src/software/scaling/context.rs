@@ -1,6 +1,8 @@
 use std::ptr;
 
-use super::Flags;
+use crate::color;
+
+use super::{ColorSpace, Flags};
 use ffi::*;
 use libc::c_int;
 use util::format;
@@ -78,6 +80,58 @@ impl Context {
         }
     }
 
+    pub fn set_colorspace_details(
+        &mut self,
+        input_space: color::Space,
+        src_range: color::Range,
+        dst_range: color::Range,
+        brightness: i32,
+        contrast: i32,
+        saturation: i32,
+    ) -> Result<(), Error> {
+        unsafe {
+            let input_color_space_int = match input_space {
+                color::Space::BT709 => ColorSpace::ITU709,
+                color::Space::BT2020CL => ColorSpace::BT2020,
+                color::Space::BT2020NCL => ColorSpace::BT2020,
+                _ => ColorSpace::ITU601,
+            };
+            let color_space_int = input_color_space_int.into();
+            let coefficients: *const i32 = sws_getCoefficients(color_space_int);
+
+            // 0 means limited range (16-235), 1 means full range (0-255)
+            let src_range_value = match src_range {
+                color::Range::MPEG => 0,
+                color::Range::JPEG => 1,
+                color::Range::Unspecified => 1,
+            };
+            // 0 means limited range, 1 means full range
+            // For an RGB image, we want full range, for YUV, most of the time we want limited range
+            let dst_range_value = match dst_range {
+                color::Range::MPEG => 0,
+                color::Range::JPEG => 1,
+                color::Range::Unspecified => 1,
+            };
+
+            let e = sws_setColorspaceDetails(
+                self.as_mut_ptr(),
+                coefficients,
+                src_range_value,
+                coefficients,
+                dst_range_value,
+                brightness,
+                contrast,
+                saturation,
+            );
+
+            if e < 0 {
+                Err(Error::from(e))
+            } else {
+                Ok(())
+            }
+        }
+    }
+
     pub fn cached(
         &mut self,
         src_format: format::Pixel,
@@ -127,10 +181,18 @@ impl Context {
         &self.output
     }
 
-    pub fn run(&mut self, input: &frame::Video, output: &mut frame::Video) -> Result<(), Error> {
-        if input.format() != self.input.format
-            || input.width() != self.input.width
-            || input.height() != self.input.height
+    pub fn run(
+        &mut self,
+        input_format: format::Pixel,
+        input_width: u32,
+        input_height: u32,
+        input_data_pointer: *const *const u8,
+        input_data_linesize: *const i32,
+        output: &mut frame::Video,
+    ) -> Result<(), Error> {
+        if input_format != self.input.format
+            || input_width != self.input.width
+            || input_height != self.input.height
         {
             return Err(Error::InputChanged);
         }
@@ -151,8 +213,8 @@ impl Context {
         unsafe {
             sws_scale(
                 self.as_mut_ptr(),
-                (*input.as_ptr()).data.as_ptr() as *const *const _,
-                (*input.as_ptr()).linesize.as_ptr() as *const _,
+                input_data_pointer,
+                input_data_linesize,
                 0,
                 self.input.height as c_int,
                 (*output.as_mut_ptr()).data.as_ptr(),
