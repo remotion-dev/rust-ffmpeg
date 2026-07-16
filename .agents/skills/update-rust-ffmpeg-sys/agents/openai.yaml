@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Rust FFmpeg Sys"
+  short_description: "Open a PR for the new sys revision"
+  default_prompt: "Use $update-rust-ffmpeg-sys with the merged rust-ffmpeg-sys commit hash, validate the dependency update, and open a draft PR."
